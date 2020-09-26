@@ -53,6 +53,9 @@ function serveStatic (root, options) {
   // default redirect
   var redirect = opts.redirect !== false
 
+  // pre-headers listener
+  var preSetHeaders = opts.preSetHeaders
+
   // headers listener
   var setHeaders = opts.setHeaders
 
@@ -69,7 +72,7 @@ function serveStatic (root, options) {
     ? createRedirectDirectoryListener()
     : createNotFoundDirectoryListener()
 
-  return function serveStatic (req, res, next) {
+  return async function serveStatic (req, res, next) {
     if (req.method !== 'GET' && req.method !== 'HEAD') {
       if (fallthrough) {
         return next()
@@ -90,6 +93,10 @@ function serveStatic (root, options) {
     // make sure redirect occurs at mount
     if (path === '/' && originalUrl.pathname.substr(-1) !== '/') {
       path = ''
+    }
+
+    if (preSetHeaders) {
+      await preSetHeaders(res, path)
     }
 
     // create send stream
