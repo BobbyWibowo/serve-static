@@ -56,6 +56,10 @@ function serveStatic (root, options) {
   // pre-headers listener
   var preSetHeaders = opts.preSetHeaders
 
+  if (preSetHeaders && typeof preSetHeaders !== 'function') {
+    throw new TypeError('option preSetHeaders must be function')
+  }
+
   // headers listener
   var setHeaders = opts.setHeaders
 
@@ -93,10 +97,6 @@ function serveStatic (root, options) {
     // make sure redirect occurs at mount
     if (path === '/' && originalUrl.pathname.substr(-1) !== '/') {
       path = ''
-    }
-
-    if (preSetHeaders) {
-      await preSetHeaders(res, path)
     }
 
     // create send stream
